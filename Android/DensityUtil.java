@@ -1,4 +1,3 @@
-package com.example.administrator.myapplication;
 
 import android.content.Context;
 import android.util.TypedValue;
