@@ -6,6 +6,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
@@ -15,11 +16,27 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class HttpsUtil
 {
+    private HttpsUtil(){}
+
     /**
-     * 将Keytool生成的.crt证书导入
+     * 生成SSLSocketFactory
+     * @param certificates  证书，不可为空
+     * @return  {@link SSLSocketFactory}
+     */
+    public static SSLSocketFactory getSslSocketFactory(InputStream certificates) {
+
+        return getSslSocketFactory(certificates,null,null);
+    }
+
+    /**
+     * 生成SSLSocketFactory
+     * @param certificates  证书，不可为空
+     * @param key           keystore
+     * @param keyPassword   keystore密码
+     * @return  {@link SSLSocketFactory}
      */
     public static SSLSocketFactory getSslSocketFactory
-    (InputStream certificates,InputStream key,String keyPassword)
+    (InputStream certificates, InputStream key, String keyPassword)
     {
         SSLContext sslContext = null;
 
@@ -28,11 +45,16 @@ public class HttpsUtil
 
         try
         {
-            TrustManagerFactory tmf = getTrustManagerFactory(ca,key,keyPassword);
+            TrustManagerFactory tmf = getTrustManagerFactory(ca);
 
-            // Create an SSLContext that uses our TrustManager
+            KeyManagerFactory kmf = null;
+            if(key != null && keyPassword != null)
+            {
+                kmf = getKeyManagerFactory(key,keyPassword);
+            }
+
             sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, tmf.getTrustManagers(), null);
+            sslContext.init(kmf == null ? null:kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
         } catch (Exception e)
         {
@@ -69,22 +91,18 @@ public class HttpsUtil
 
     /**
      * 获取{@link TrustManagerFactory}（信任证书管理）
+     * @param ca 证书实体
      * @return {@link TrustManagerFactory},如果输入流错误就返回null
      */
-    private static TrustManagerFactory getTrustManagerFactory
-    (Certificate ca,InputStream key,String keyPassword)
+    private static TrustManagerFactory getTrustManagerFactory(Certificate ca)
     {
         TrustManagerFactory tmf = null;
         try {
-            // Create a KeyStore containing our trusted CAs
             String keyStoreType = KeyStore.getDefaultType();
-
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-
-            keyStore.load(key, keyPassword.toCharArray());
+            keyStore.load(null,null);
             keyStore.setCertificateEntry("ca", ca);
 
-            // Create a TrustManager that trusts the CAs in our KeyStore
             String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
             tmf.init(keyStore);
@@ -95,4 +113,32 @@ public class HttpsUtil
 
         return tmf;
     }
+
+    /**
+     * 获取{@link KeyManagerFactory}（Keystote管理）
+     * @param key           keystore文件流（.bks）
+     * @param keyPassword   keystore密码
+     * @return  {@link KeyManagerFactory},如果输入流错误或密码错误就返回null
+     */
+    private static KeyManagerFactory getKeyManagerFactory(InputStream key,String keyPassword)
+    {
+        KeyManagerFactory kmf = null;
+
+        try {
+            String keyStoreType = "BKS";
+            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+            keyStore.load(key, keyPassword.toCharArray());
+
+            String kmfAlgorithm = KeyManagerFactory.getDefaultAlgorithm();
+            kmf = KeyManagerFactory.getInstance(kmfAlgorithm);
+            kmf.init(keyStore,keyPassword.toCharArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return kmf;
+    }
+
+
 }
