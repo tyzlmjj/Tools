@@ -1,4 +1,3 @@
-package me.majiajie.https;
 
 import android.app.Activity;
 import android.util.DisplayMetrics;

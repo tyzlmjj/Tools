@@ -1,5 +1,3 @@
-package me.majiajie.https;
-
 
 import android.os.Handler;
 import android.os.Looper;
@@ -9,6 +7,8 @@ import android.os.Looper;
  */
 public class ThreadUtil
 {
+    public ThreadUtil(){}
+
     /**
      * 判断当前是否为主线程
      */
