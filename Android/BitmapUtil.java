@@ -1,4 +1,3 @@
-package me.majiajie.https;
 
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
