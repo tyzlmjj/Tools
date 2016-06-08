@@ -1,5 +1,10 @@
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -11,6 +16,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
+import android.util.DisplayMetrics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,53 +26,62 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
 
     private static final float sqrt_3 = (float) Math.sqrt(3);
 
-    private static final long ANIM_TIME = 2_000;//动画周期时间
+    private static final long ANIM_TIME = 1_500;//动画周期时间
 
     private static final long FRAME_DELAY = 30;//动画帧间隔
 
-    private static final long WIDTH_DEFAULT = 200;//默认大小
+    private static final float WIDTH_DEFAULT = 56;//默认长宽
 
     private static final int COLOR_DEFAULT = Color.GRAY;//默认颜色
 
-    private ValueAnimator mAnimator;
+    private static final int MAX_ALPHA_DEFAULT = 0xFF;//最大透明度
 
-    //宽高相等，只保存宽
-    private float mWidth;
+    private static final float MIN_SIZE = 0.5f;//最小比例
 
-    //颜色
-    private int mColor;
+    private float mWidth;//宽高相等，只保存宽
 
-    //间距
-    private float mPadding;
+    private int mColor; //颜色
 
-    //原点，这里是中心点
-    private float mOrigin_x;
-    private float mOrigin_y;
+    private float mPadding; //间距
 
-    //六边形边长
-    private float mHexgon_lenght;
+    private float mOrigin_x;//原点X，这里是中心点
+    private float mOrigin_y;//原点Y，这里是中心点
+
+    private float mHexgon_lenght;//六边形边长
+
+    private AnimatorSet mAnimator;
 
     private Paint mPaint;
 
     private List<Hexagon> mHexagons;
 
-    public HexagonProgressDrawable()
-    {
-        mWidth = WIDTH_DEFAULT;
-        mColor = COLOR_DEFAULT;
+    private int mMaxAlpha;
 
-        init();
+    private boolean mCancel = false;
+
+    private Resources mResources;
+
+    public HexagonProgressDrawable(Context context)
+    {
+        init(context,COLOR_DEFAULT,WIDTH_DEFAULT);
     }
 
-    public HexagonProgressDrawable(@ColorInt int color, float width)
+    public HexagonProgressDrawable(Context context,@ColorInt int color, float width)
     {
-        mWidth = width;
+        init(context,color,width);
+    }
+
+    private void init(Context context,@ColorInt int color, float width) {
+
+        mResources = context.getResources();
+
+        final DisplayMetrics metrics = mResources.getDisplayMetrics();
+        final float screenDensity = metrics.density;
+
+        mWidth = width*screenDensity;
         mColor = color;
+        mMaxAlpha = MAX_ALPHA_DEFAULT;
 
-        init();
-    }
-
-    private void init() {
 
         mPadding = Math.max(mWidth/3/2/10,1f);
 
@@ -131,12 +146,12 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
 
     @Override
     public void setAlpha(int alpha) {
-
+        mMaxAlpha = alpha;
     }
 
     @Override
     public void setColorFilter(ColorFilter colorFilter) {
-
+        mPaint.setColorFilter(colorFilter);
     }
 
     @Override
@@ -147,8 +162,13 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
     @Override
     public void start()
     {
-        if(mAnimator != null && !mAnimator.isStarted())
+        if(mAnimator != null && !mAnimator.isRunning())
         {
+            for (Hexagon hexagon:mHexagons)
+            {
+                hexagon.setAlpha(0f);
+            }
+            mCancel = false;
             mAnimator.start();
         }
     }
@@ -156,9 +176,10 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
     @Override
     public void stop()
     {
-        if(mAnimator != null && mAnimator.isStarted())
+        if(mAnimator != null)
         {
-            mAnimator.
+            mCancel = true;
+            mAnimator.end();
         }
     }
 
@@ -179,26 +200,137 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
     private void setupAnimators()
     {
         ValueAnimator.setFrameDelay(FRAME_DELAY);
-        ValueAnimator animator = ValueAnimator.ofFloat(7f,0f,-7f).setDuration(ANIM_TIME);
+        ValueAnimator animator = ValueAnimator.ofFloat(0f,4f);
+        animator.setDuration(ANIM_TIME);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
+            public void onAnimationUpdate(ValueAnimator animation)
+            {
+                float value = (float) animation.getAnimatedValue();
 
+                if(value <= 1)
+                {
+                    mHexagons.get(0).setAlpha(value);
+                    mHexagons.get(0).setLenght(value);
+                }
+
+                if( 0.5f < value && value <= 1.5f)
+                {
+                    mHexagons.get(1).setAlpha(value-0.5f);
+                    mHexagons.get(1).setLenght(value-0.5f);
+                }
+
+                if( 1f < value && value <= 2)
+                {
+                    mHexagons.get(2).setAlpha(value-1f);
+                    mHexagons.get(2).setLenght(value-1f);
+                }
+
+                if(1.5f < value && value <= 2.5f)
+                {
+                    mHexagons.get(3).setAlpha(value-1.5f);
+                    mHexagons.get(3).setLenght(value-1.5f);
+                }
+
+                if(2f < value &&value <= 3f)
+                {
+                    mHexagons.get(4).setAlpha(value-2f);
+                    mHexagons.get(4).setLenght(value-2f);
+                }
+
+                if(2.5f < value && value <= 3.5f)
+                {
+                    mHexagons.get(5).setAlpha(value-2.5f);
+                    mHexagons.get(5).setLenght(value-2.5f);
+                }
+
+                if(3f < value && value <= 4f)
+                {
+                    mHexagons.get(6).setAlpha(value-3f);
+                    mHexagons.get(6).setLenght(value-3f);
+                }
+
+                invalidateSelf();
             }
         });
 
-        mAnimator = animator;
+        ValueAnimator animator_second = ValueAnimator.ofFloat(0f,4f);
+        animator_second.setDuration(ANIM_TIME);
+        animator_second.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+
+                if(value <= 1)
+                {
+                    mHexagons.get(0).setAlpha(1f-value);
+                    mHexagons.get(0).setLenght(1f-value);
+                }
+
+                if( 0.5f < value && value <= 1.5f)
+                {
+                    mHexagons.get(1).setAlpha(1f-(value-0.5f));
+                    mHexagons.get(1).setLenght(1f-(value-0.5f));
+                }
+
+                if( 1f < value && value <= 2)
+                {
+                    mHexagons.get(2).setAlpha(1f-(value-1f));
+                    mHexagons.get(2).setLenght(1f-(value-1f));
+                }
+
+                if(1.5f < value && value <= 2.5f)
+                {
+                    mHexagons.get(3).setAlpha(1f-(value-1.5f));
+                    mHexagons.get(3).setLenght(1f-(value-1.5f));
+                }
+
+                if(2f < value &&value <= 3f)
+                {
+                    mHexagons.get(4).setAlpha(1f-(value-2f));
+                    mHexagons.get(4).setLenght(1f-(value-2f));
+                }
+
+                if(2.5f < value && value <= 3.5f)
+                {
+                    mHexagons.get(5).setAlpha(1f-(value-2.5f));
+                    mHexagons.get(5).setLenght(1f-(value-2.5f));
+                }
+
+                if(3f < value && value <= 4f)
+                {
+                    mHexagons.get(6).setAlpha(1f-(value-3f));
+                    mHexagons.get(6).setLenght(1f-(value-3f));
+                }
+
+                invalidateSelf();
+            }
+        });
+
+        mAnimator = new AnimatorSet();
+        mAnimator.playSequentially(animator,animator_second);
+        mAnimator.addListener(new AnimatorListenerAdapter()
+        {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                if(!mCancel)
+                {
+                    mAnimator.start();
+                }
+            }
+        });
     }
 
-    @Override
-    public int getIntrinsicHeight() {
-        return (int) mWidth;
-    }
-
-    @Override
-    public int getIntrinsicWidth() {
-        return (int) mWidth;
-    }
+//    @Override
+//    public int getIntrinsicHeight() {
+//        return (int) mWidth;
+//    }
+//
+//    @Override
+//    public int getIntrinsicWidth() {
+//        return (int) mWidth;
+//    }
 
     class Hexagon
     {
@@ -210,7 +342,7 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
         //路径
         private Path path;
         //透明度
-        private int alpha = 0xFF;
+        private int alpha = 0;
 
         public Hexagon(float lenght,float x,float y)
         {
@@ -255,8 +387,14 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
             return alpha;
         }
 
-        public void setAlpha(int alpha) {
-            this.alpha = alpha;
+        public void setAlpha(float v) {
+            this.alpha = (int) (MAX_ALPHA_DEFAULT * v);
+        }
+
+        public void setLenght(float v)
+        {
+            this.lenght = mHexgon_lenght*(1-MIN_SIZE)*v + mHexgon_lenght*MIN_SIZE;
+            changePath(lenght);
         }
     }
 }
