@@ -215,6 +215,10 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
                     {
                         mHexagons.get(i).setAlpha(value-0.5f*i);
                         mHexagons.get(i).setLenght(value-0.5f*i);
+                        if((i-2)>=0)
+                        {
+                            mHexagons.get(i-2).setAlpha(1f);
+                        }
                     }
                 }
 
@@ -236,6 +240,11 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
                     {
                         mHexagons.get(i).setAlpha(1f-(value-0.5f*i));
                         mHexagons.get(i).setLenght(1f-(value-0.5f*i));
+
+                        if((i-2)>=0)
+                        {
+                            mHexagons.get(i-2).setAlpha(0f);
+                        }
                     }
                 }
 
