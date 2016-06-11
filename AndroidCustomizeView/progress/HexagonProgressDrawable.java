@@ -63,26 +63,27 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
 
     public HexagonProgressDrawable(Context context)
     {
-        init(context,COLOR_DEFAULT,WIDTH_DEFAULT);
-    }
-
-    public HexagonProgressDrawable(Context context,@ColorInt int color, float width)
-    {
-        init(context,color,width);
-    }
-
-    private void init(Context context,@ColorInt int color, float width) {
-
         mResources = context.getResources();
 
         final DisplayMetrics metrics = mResources.getDisplayMetrics();
         final float screenDensity = metrics.density;
 
-        mWidth = width*screenDensity;
+        init(COLOR_DEFAULT,WIDTH_DEFAULT*screenDensity);
+    }
+
+    public HexagonProgressDrawable(@ColorInt int color, float width)
+    {
+        init(color,width);
+    }
+
+
+
+    private void init(@ColorInt int color, float length)
+    {
         mColor = color;
         mMaxAlpha = MAX_ALPHA_DEFAULT;
 
-
+        mWidth = length;
         mPadding = Math.max(mWidth/3/2/10,1f);
 
         mHexgon_lenght = (mWidth/3 - mPadding*2)/sqrt_3;
@@ -208,46 +209,13 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
             {
                 float value = (float) animation.getAnimatedValue();
 
-                if(value <= 1)
+                for(int i = 0;i < 7;i++)
                 {
-                    mHexagons.get(0).setAlpha(value);
-                    mHexagons.get(0).setLenght(value);
-                }
-
-                if( 0.5f < value && value <= 1.5f)
-                {
-                    mHexagons.get(1).setAlpha(value-0.5f);
-                    mHexagons.get(1).setLenght(value-0.5f);
-                }
-
-                if( 1f < value && value <= 2)
-                {
-                    mHexagons.get(2).setAlpha(value-1f);
-                    mHexagons.get(2).setLenght(value-1f);
-                }
-
-                if(1.5f < value && value <= 2.5f)
-                {
-                    mHexagons.get(3).setAlpha(value-1.5f);
-                    mHexagons.get(3).setLenght(value-1.5f);
-                }
-
-                if(2f < value &&value <= 3f)
-                {
-                    mHexagons.get(4).setAlpha(value-2f);
-                    mHexagons.get(4).setLenght(value-2f);
-                }
-
-                if(2.5f < value && value <= 3.5f)
-                {
-                    mHexagons.get(5).setAlpha(value-2.5f);
-                    mHexagons.get(5).setLenght(value-2.5f);
-                }
-
-                if(3f < value && value <= 4f)
-                {
-                    mHexagons.get(6).setAlpha(value-3f);
-                    mHexagons.get(6).setLenght(value-3f);
+                    if( i*0.5f < value && value <= (1f+0.5f*i))
+                    {
+                        mHexagons.get(i).setAlpha(value-0.5f*i);
+                        mHexagons.get(i).setLenght(value-0.5f*i);
+                    }
                 }
 
                 invalidateSelf();
@@ -261,46 +229,14 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
 
-                if(value <= 1)
-                {
-                    mHexagons.get(0).setAlpha(1f-value);
-                    mHexagons.get(0).setLenght(1f-value);
-                }
 
-                if( 0.5f < value && value <= 1.5f)
+                for(int i = 0;i < 7;i++)
                 {
-                    mHexagons.get(1).setAlpha(1f-(value-0.5f));
-                    mHexagons.get(1).setLenght(1f-(value-0.5f));
-                }
-
-                if( 1f < value && value <= 2)
-                {
-                    mHexagons.get(2).setAlpha(1f-(value-1f));
-                    mHexagons.get(2).setLenght(1f-(value-1f));
-                }
-
-                if(1.5f < value && value <= 2.5f)
-                {
-                    mHexagons.get(3).setAlpha(1f-(value-1.5f));
-                    mHexagons.get(3).setLenght(1f-(value-1.5f));
-                }
-
-                if(2f < value &&value <= 3f)
-                {
-                    mHexagons.get(4).setAlpha(1f-(value-2f));
-                    mHexagons.get(4).setLenght(1f-(value-2f));
-                }
-
-                if(2.5f < value && value <= 3.5f)
-                {
-                    mHexagons.get(5).setAlpha(1f-(value-2.5f));
-                    mHexagons.get(5).setLenght(1f-(value-2.5f));
-                }
-
-                if(3f < value && value <= 4f)
-                {
-                    mHexagons.get(6).setAlpha(1f-(value-3f));
-                    mHexagons.get(6).setLenght(1f-(value-3f));
+                    if( i*0.5f < value && value <= (1f+0.5f*i))
+                    {
+                        mHexagons.get(i).setAlpha(1f-(value-0.5f*i));
+                        mHexagons.get(i).setLenght(1f-(value-0.5f*i));
+                    }
                 }
 
                 invalidateSelf();
@@ -322,15 +258,15 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
         });
     }
 
-//    @Override
-//    public int getIntrinsicHeight() {
-//        return (int) mWidth;
-//    }
-//
-//    @Override
-//    public int getIntrinsicWidth() {
-//        return (int) mWidth;
-//    }
+    @Override
+    public int getIntrinsicHeight() {
+        return (int) mWidth;
+    }
+
+    @Override
+    public int getIntrinsicWidth() {
+        return (int) mWidth;
+    }
 
     class Hexagon
     {
@@ -388,7 +324,7 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
         }
 
         public void setAlpha(float v) {
-            this.alpha = (int) (MAX_ALPHA_DEFAULT * v);
+            this.alpha = (int) (mMaxAlpha * v);
         }
 
         public void setLenght(float v)
