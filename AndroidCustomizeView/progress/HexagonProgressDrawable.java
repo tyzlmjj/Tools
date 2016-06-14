@@ -28,8 +28,6 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
 
     private static final long ANIM_TIME = 1_500;//动画周期时间
 
-    private static final long FRAME_DELAY = 30;//动画帧间隔
-
     private static final float WIDTH_DEFAULT = 56;//默认长宽
 
     private static final int COLOR_DEFAULT = Color.GRAY;//默认颜色
@@ -38,7 +36,7 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
 
     private static final float MIN_SIZE = 0.5f;//最小比例
 
-    private float mWidth;//宽高相等，只保存宽
+    private float mLenght;//宽高相等，只保存宽
 
     private int mColor; //颜色
 
@@ -71,25 +69,23 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
         init(COLOR_DEFAULT,WIDTH_DEFAULT*screenDensity);
     }
 
-    public HexagonProgressDrawable(@ColorInt int color, float width)
+    public HexagonProgressDrawable(@ColorInt int color, float lenght)
     {
-        init(color,width);
+        init(color,lenght);
     }
-
-
 
     private void init(@ColorInt int color, float length)
     {
         mColor = color;
         mMaxAlpha = MAX_ALPHA_DEFAULT;
 
-        mWidth = length;
-        mPadding = Math.max(mWidth/3/2/10,1f);
+        mLenght = length;
+        mPadding = Math.max(mLenght /3/2/10,1f);
 
-        mHexgon_lenght = (mWidth/3 - mPadding*2)/sqrt_3;
+        mHexgon_lenght = (mLenght /3 - mPadding*2)/sqrt_3;
 
-        mOrigin_x = mWidth/2;
-        mOrigin_y = mWidth/2;
+        mOrigin_x = mLenght /2;
+        mOrigin_y = mLenght /2;
 
         mHexagons = new ArrayList<>();
         //  1
@@ -189,7 +185,6 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
         if(color != mColor)
         {
             mPaint.setColor(color);
-            invalidateSelf();
         }
     }
 
@@ -198,9 +193,20 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
         return mAnimator.isRunning();
     }
 
+    @Override
+    public int getIntrinsicHeight() {
+        return (int) mLenght;
+    }
+
+    @Override
+    public int getIntrinsicWidth() {
+        return (int) mLenght;
+    }
+
+
+
     private void setupAnimators()
     {
-        ValueAnimator.setFrameDelay(FRAME_DELAY);
         ValueAnimator animator = ValueAnimator.ofFloat(0f,4f);
         animator.setDuration(ANIM_TIME);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -267,15 +273,7 @@ public class HexagonProgressDrawable extends Drawable implements Animatable {
         });
     }
 
-    @Override
-    public int getIntrinsicHeight() {
-        return (int) mWidth;
-    }
 
-    @Override
-    public int getIntrinsicWidth() {
-        return (int) mWidth;
-    }
 
     class Hexagon
     {

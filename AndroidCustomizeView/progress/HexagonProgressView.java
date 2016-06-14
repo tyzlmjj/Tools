@@ -1,14 +1,17 @@
-package com.example.mjj.myapplication;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
-import android.widget.ImageView;
+import android.view.View;
 
 
-public class HexagonProgressView extends ImageView
+public class HexagonProgressView extends View implements Animatable
 {
+    private HexagonProgressDrawable mDrawable;
 
     public HexagonProgressView(Context context) {
         super(context);
@@ -22,20 +25,29 @@ public class HexagonProgressView extends ImageView
         super(context, attrs, defStyleAttr);
     }
 
-    HexagonProgressDrawable mDrawable;
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh)
+    {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        int min_lenght = Math.min(w,h);
+        mDrawable = new HexagonProgressDrawable(Color.GRAY,min_lenght);
+        mDrawable.setCallback(this);
+        mDrawable.start();
+    }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    protected void onDraw(Canvas canvas)
+    {
+        super.onDraw(canvas);
 
-        int min_lenght = Math.min(getMeasuredHeight(),getMeasuredWidth());
+        mDrawable.draw(canvas);
+    }
 
-        if(min_lenght > 0 && mDrawable == null)
-        {
-            mDrawable = new HexagonProgressDrawable(Color.GRAY,min_lenght);
-            setImageDrawable(mDrawable);
-            mDrawable.start();
-        }
+    @Override
+    public void invalidateDrawable(Drawable drawable) {
+        super.invalidateDrawable(drawable);
+        invalidate();
     }
 
     public void setProgressColor(@ColorInt int color)
@@ -44,5 +56,33 @@ public class HexagonProgressView extends ImageView
         {
             mDrawable.setColor(color);
         }
+    }
+
+    @Override
+    public void start()
+    {
+        if(mDrawable != null)
+        {
+            mDrawable.start();
+        }
+    }
+
+    @Override
+    public void stop()
+    {
+        if(mDrawable != null)
+        {
+            mDrawable.stop();
+        }
+    }
+
+    @Override
+    public boolean isRunning()
+    {
+        if(mDrawable != null)
+        {
+            return mDrawable.isRunning();
+        }
+        return false;
     }
 }
