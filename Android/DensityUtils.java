@@ -6,7 +6,7 @@ import android.util.TypedValue;
  * 单位转换<p>
  * 可查看{@link TypedValue}的applyDimension()
  */
-public class DensityUtil {
+public class DensityUtils {
 
 	public static float px2dp(Context context, float pxValue) {
 		final float scale = context.getResources().getDisplayMetrics().density;
