@@ -1,13 +1,18 @@
-package me.majiajie.httprequest.http;
+package http;
 
 
 public class Result
 {
     private int code;
 
-    private String message;
+    private String message = "";
 
-    private String body;
+    private String body = "";
+
+    public boolean isSucceed()
+    {
+        return code >= 200 && code < 300;
+    }
 
     public int getCode() {
         return code;
