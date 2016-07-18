@@ -1,4 +1,4 @@
-package http.progress;
+package httprequest.progress;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -23,7 +23,7 @@ public class ProgressHelper {
                 .addNetworkInterceptor(new Interceptor()
                 {
                     @Override
-                    public Response intercept(Interceptor.Chain chain) throws IOException {
+                    public Response intercept(Chain chain) throws IOException {
                     //拦截
                     Response originalResponse = chain.proceed(chain.request());
                     //包装响应体并返回

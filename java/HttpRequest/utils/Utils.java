@@ -1,4 +1,4 @@
-package http.utils;
+package httprequest.utils;
 
 
 import java.io.UnsupportedEncodingException;

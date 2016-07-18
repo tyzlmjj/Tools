@@ -1,14 +1,17 @@
-package http.request;
+package httprequest.request;
 
 
-import http.Result;
-import http.callback.HttpCallBack;
-import http.progress.ProgressHelper;
-import http.progress.ProgressRequestBody;
-import http.progress.ProgressResponseBody;
+
+import httprequest.HttpRequest;
+import httprequest.Result;
+import httprequest.callback.HttpCallBack;
+import httprequest.progress.ProgressHelper;
+import httprequest.progress.ProgressRequestBody;
+import httprequest.progress.ProgressResponseBody;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 
 abstract class AbsRequest
@@ -23,7 +26,13 @@ abstract class AbsRequest
 
     ProgressResponseBody.DownloadProgressListener mDownloadProgressListener;
 
-    private OkHttpClient mOkHttpClient;
+    long mConnectTimeout = 0;
+
+    long mReadTimeout = 0;
+
+    long mWriteTimeout = 0;
+
+    OkHttpClient mOkHttpClient;
 
     AbsRequest(String url, OkHttpClient okHttpClient)
     {
@@ -36,22 +45,9 @@ abstract class AbsRequest
 
     public Result execute()
     {
+        warp();
+
         Result result = new Result();
-
-        if(mUpLoadProgressListener != null)
-        {
-            mRequestBody = ProgressHelper.addProgressRequestListener(mRequestBody,mUpLoadProgressListener);
-        }
-
-        if(mDownloadProgressListener != null)
-        {
-            mOkHttpClient = ProgressHelper.addProgressResponseListener(mOkHttpClient,mDownloadProgressListener);
-        }
-
-        if(this instanceof HttpPost)
-        {
-            mRequestBuild.post(mRequestBody);
-        }
 
         try
         {
@@ -79,20 +75,7 @@ abstract class AbsRequest
 
     public void enqueue(final HttpCallBack callBack)
     {
-        if(mUpLoadProgressListener != null)
-        {
-            mRequestBody = ProgressHelper.addProgressRequestListener(mRequestBody,mUpLoadProgressListener);
-        }
-
-        if(mDownloadProgressListener != null)
-        {
-            mOkHttpClient = ProgressHelper.addProgressResponseListener(mOkHttpClient,mDownloadProgressListener);
-        }
-
-        if(this instanceof HttpPost)
-        {
-            mRequestBuild.post(mRequestBody);
-        }
+        warp();
 
         mOkHttpClient.newCall(mRequestBuild.build()).enqueue(new Callback() {
             @Override
@@ -127,5 +110,47 @@ abstract class AbsRequest
                 }
             }
         });
+    }
+
+    private void warp()
+    {
+        warpListener();
+
+        warpRequest();
+
+        warpClient();
+    }
+
+    private void warpListener()
+    {
+        if(mUpLoadProgressListener != null)
+        {
+            mRequestBody = ProgressHelper.addProgressRequestListener(mRequestBody,mUpLoadProgressListener);
+        }
+
+        if(mDownloadProgressListener != null)
+        {
+            mOkHttpClient = ProgressHelper.addProgressResponseListener(mOkHttpClient,mDownloadProgressListener);
+        }
+    }
+
+    private void warpRequest()
+    {
+        if(this instanceof HttpPost)
+        {
+            mRequestBuild.post(mRequestBody);
+        }
+    }
+
+    private void warpClient()
+    {
+        if( mConnectTimeout > 0 || mReadTimeout > 0 || mWriteTimeout > 0)
+        {
+            mOkHttpClient = mOkHttpClient.newBuilder()
+                .connectTimeout(mConnectTimeout !=0 ?mConnectTimeout:HttpRequest.getDefaultTimeout(),TimeUnit.MILLISECONDS)
+                .readTimeout(mReadTimeout !=0 ?mReadTimeout:HttpRequest.getDefaultTimeout(), TimeUnit.MILLISECONDS)
+                .writeTimeout(mWriteTimeout !=0 ?mWriteTimeout:HttpRequest.getDefaultTimeout(), TimeUnit.MILLISECONDS)
+                .build();
+        }
     }
 }

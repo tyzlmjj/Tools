@@ -1,7 +1,7 @@
-package http;
+package httprequest;
 
-import http.request.HttpGet;
-import http.request.HttpPost;
+import httprequest.request.HttpGet;
+import httprequest.request.HttpPost;
 import okhttp3.OkHttpClient;
 
 import java.util.concurrent.TimeUnit;
@@ -15,7 +15,7 @@ public class HttpRequest
 {
     private static final OkHttpClient mOkHttpClient;
 
-    private static final int TIME_OUT = 10_000;//毫秒
+    private static final long TIME_OUT = 10_000;//毫秒
 
     static {
         mOkHttpClient =  new OkHttpClient.Builder()
@@ -35,6 +35,16 @@ public class HttpRequest
     public static HttpPost doPost(String url)
     {
         return new HttpPost(url,mOkHttpClient);
+    }
+
+    public static OkHttpClient getHttpClient()
+    {
+        return mOkHttpClient;
+    }
+
+    public static long getDefaultTimeout()
+    {
+        return TIME_OUT;
     }
 
 }

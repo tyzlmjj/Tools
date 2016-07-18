@@ -1,4 +1,4 @@
-package http.utils;
+package httprequest.utils;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -114,7 +114,7 @@ public class HttpsUtils
 
     /**
      * 获取{@link KeyManagerFactory}（Keystote管理）
-     * @param key           keystore文件流（.bks）
+     * @param key           keystore文件流（.jks）
      * @param keyPassword   keystore密码
      * @return  {@link KeyManagerFactory},如果输入流错误或密码错误就返回null
      */
@@ -123,7 +123,7 @@ public class HttpsUtils
         KeyManagerFactory kmf = null;
 
         try {
-            String keyStoreType = "BKS";
+            String keyStoreType = "JKS";
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
             keyStore.load(key, keyPassword.toCharArray());
 

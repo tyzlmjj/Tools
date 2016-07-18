@@ -1,9 +1,9 @@
-package http;
+package httprequest;
 
 
-import http.request.HttpGet;
-import http.request.HttpPost;
-import http.utils.HttpsUtils;
+import httprequest.request.HttpGet;
+import httprequest.request.HttpPost;
+import httprequest.utils.HttpsUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.internal.Platform;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public class HttpsRequest
 {
-    private static OkHttpClient mOkHttpClient;
+    private static OkHttpClient mOkHttpClient = HttpRequest.getHttpClient();
 
     private static final int TIME_OUT = 10_000;//毫秒
 
@@ -41,7 +41,7 @@ public class HttpsRequest
 
     private static void initialization(SSLSocketFactory sslSocketFactory,X509TrustManager trustManager)
     {
-        mOkHttpClient =  new OkHttpClient.Builder()
+        mOkHttpClient =  mOkHttpClient.newBuilder()
                 .sslSocketFactory(sslSocketFactory,trustManager)
                 .connectTimeout(TIME_OUT, TimeUnit.MILLISECONDS)
                 .readTimeout(TIME_OUT, TimeUnit.MILLISECONDS)

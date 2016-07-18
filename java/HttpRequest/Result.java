@@ -1,4 +1,4 @@
-package http;
+package httprequest;
 
 
 public class Result

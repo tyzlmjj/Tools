@@ -1,9 +1,9 @@
-package http.request;
+package httprequest.request;
 
-import http.MT;
-import http.progress.ProgressRequestBody;
-import http.progress.ProgressResponseBody;
-import http.utils.Utils;
+import httprequest.MT;
+import httprequest.progress.ProgressRequestBody;
+import httprequest.progress.ProgressResponseBody;
+import httprequest.utils.Utils;
 import okhttp3.*;
 
 import java.util.Map;
@@ -28,6 +28,8 @@ public class HttpPost extends AbsRequest
         return HttpPost.this;
     }
 
+
+
     public HttpPost params(Map<String, String> params) {
         mRequestBody = RequestBody.create(MT.MEDIA_TYPE_DEFUALT, Utils.encodeParameters(params,"UTF-8"));
         return HttpPost.this;
@@ -49,18 +51,6 @@ public class HttpPost extends AbsRequest
         return HttpPost.this;
     }
 
-    public HttpPost uploadListener(ProgressRequestBody.UpLoadProgressListener listener)
-    {
-        mUpLoadProgressListener = listener;
-        return HttpPost.this;
-    }
-
-    public HttpPost downloadListerner(ProgressResponseBody.DownloadProgressListener listener)
-    {
-        mDownloadProgressListener = listener;
-        return HttpPost.this;
-    }
-
     /**
      * 多类型参数上传,例子：
      * <p>
@@ -75,6 +65,49 @@ public class HttpPost extends AbsRequest
     {
         mRequestBody = multipartBody;
         return HttpPost.this;
+    }
+
+
+
+    public HttpPost uploadListener(ProgressRequestBody.UpLoadProgressListener listener)
+    {
+        mUpLoadProgressListener = listener;
+        return HttpPost.this;
+    }
+
+    public HttpPost downloadListerner(ProgressResponseBody.DownloadProgressListener listener)
+    {
+        mDownloadProgressListener = listener;
+        return HttpPost.this;
+    }
+
+
+
+    /**
+     * 连接超时时间，单位毫秒
+     */
+    public HttpPost connectTimeout(long connectTimeout)
+    {
+        mConnectTimeout = connectTimeout;
+        return this;
+    }
+
+    /**
+     * 读入超时时间，单位毫秒
+     */
+    public HttpPost readTimeout(long readTimeout)
+    {
+        mReadTimeout = readTimeout;
+        return this;
+    }
+
+    /**
+     * 写出超时时间，单位毫秒
+     */
+    public HttpPost writeTimeout(long writeTimeout)
+    {
+        mWriteTimeout = writeTimeout;
+        return this;
     }
 
 

@@ -1,4 +1,4 @@
-package http.progress;
+package httprequest.progress;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
