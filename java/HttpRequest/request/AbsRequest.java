@@ -8,9 +8,13 @@ import httprequest.callback.HttpCallBack;
 import httprequest.progress.ProgressHelper;
 import httprequest.progress.ProgressRequestBody;
 import httprequest.progress.ProgressResponseBody;
+import httprequest.utils.HttpStatusCode;
 import okhttp3.*;
+import reflect.MD5Utils;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 
@@ -56,19 +60,19 @@ abstract class AbsRequest
             {
                 result.setBody(response.body().string());
                 result.setCode(response.code());
-                result.setMessage("request succeed !");
+                result.setMessage("请求成功!");
             }
             else
             {
                 result.setCode(response.code());
-                result.setMessage(response.message());
+                result.setMessage(HttpStatusCode.getMsgByCode(response.code()));
             }
         }
         catch (IOException e)
         {
             e.printStackTrace();
             result.setCode(-1);
-            result.setMessage("IOException: " + "read data error");
+            result.setMessage("读取服务端返回数据失败");
         }
         return result;
     }
@@ -83,10 +87,10 @@ abstract class AbsRequest
             {
                 if(call.isCanceled())
                 {
-                    callBack.onError(-2,"request is canceled :" + e.getMessage());
+                    callBack.onError(-2,"请求被取消");
                 }
                 else{
-                    callBack.onError(-1,e.getMessage());
+                    callBack.onError(-1,"请求失败");
                 }
             }
 
@@ -101,12 +105,12 @@ abstract class AbsRequest
                     catch (IOException e)
                     {
                         e.printStackTrace();
-                        callBack.onError(-1,"IOException: " + "read data error");
+                        callBack.onError(-1,"读取服务端返回数据失败");
                     }
                 }
                 else
                 {
-                    callBack.onError(response.code(),response.message());
+                    callBack.onError(response.code(),HttpStatusCode.getMsgByCode(response.code()));
                 }
             }
         });
@@ -136,9 +140,21 @@ abstract class AbsRequest
 
     private void warpRequest()
     {
+        final String UserId = "A6971118873561";
+        final String UserPassword = UserId + "UZ" + "8C757B31-A896-F477-C46D-4E27E05528D3" + "UZ";
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //验证所需信息
+        final String CurrentTime = sdf.format(new Date());
+//        final String CurrentTime = "2016-07-20 9:55:30";
+
         if(this instanceof HttpPost)
         {
-            mRequestBuild.post(mRequestBody);
+            mRequestBuild.post(mRequestBody)
+                    .addHeader("UserId",UserId)
+                    .addHeader("UserPassword", MD5Utils.getMD5(UserPassword+CurrentTime))
+                    .addHeader("CurrentTime",CurrentTime);
+
         }
     }
 
