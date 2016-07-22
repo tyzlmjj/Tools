@@ -140,21 +140,9 @@ abstract class AbsRequest
 
     private void warpRequest()
     {
-        final String UserId = "A6971118873561";
-        final String UserPassword = UserId + "UZ" + "8C757B31-A896-F477-C46D-4E27E05528D3" + "UZ";
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        //验证所需信息
-        final String CurrentTime = sdf.format(new Date());
-//        final String CurrentTime = "2016-07-20 9:55:30";
-
         if(this instanceof HttpPost)
         {
-            mRequestBuild.post(mRequestBody)
-                    .addHeader("UserId",UserId)
-                    .addHeader("UserPassword", MD5Utils.getMD5(UserPassword+CurrentTime))
-                    .addHeader("CurrentTime",CurrentTime);
-
+            mRequestBuild.post(mRequestBody);
         }
     }
 
