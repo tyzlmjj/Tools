@@ -8,7 +8,7 @@ public class MessageDigestUtils {
     private MessageDigestUtils() {}
 
     public static String getMD5(byte[] inputByteArray){
-        return get(inputByteArray,"MessageDigestUtils");
+        return get(inputByteArray,"MD5");
     }
 
     public static String getSHA1(byte[] inputByteArray){
