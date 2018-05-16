@@ -42,7 +42,7 @@ public class LoadingDialogHelper {
         if (activity == null || activity.isFinishing()){return;}
 
         if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
-            mLoadingDialog.hide();
+            mLoadingDialog.cancel();
         }
     }
 }
