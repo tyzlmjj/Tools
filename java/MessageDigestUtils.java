@@ -12,11 +12,11 @@ public class MessageDigestUtils {
     }
 
     public static String getSHA1(byte[] inputByteArray){
-        return get(inputByteArray,"SHA1");
+        return get(inputByteArray,"SHA-1");
     }
 
     public static String getSHA256(byte[] inputByteArray){
-        return get(inputByteArray,"SHA256");
+        return get(inputByteArray,"SHA-256");
     }
 
     private static String get(byte[] inputByteArray,String algorithm){
